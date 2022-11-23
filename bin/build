@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+IMAGE_NAME="$1"
+if [[ -z "$IMAGE_NAME" ]]; then
+  >&2 echo "Please supply a name for the container image."
+  exit 1
+fi
+
+docker build -t $IMAGE_NAME .
