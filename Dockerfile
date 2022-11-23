@@ -69,8 +69,8 @@ RUN mix compile
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
 
-COPY apps/hello_web/rel rel/
-RUN mix release
+RUN cp -R apps/hello_web/rel ./ \
+    && mix release
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
