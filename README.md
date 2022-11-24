@@ -10,14 +10,19 @@ I have also created a Docker Compose branch for your convenience! Please check i
 
 ## How to use
 
-There are 2 commands:
+There are 3 commands:
 
+1. `mix deps.get`
+   - We need the deps locally so Phoenix can generate a secure secret
 1. `bin/build IMAGE_NAME`
+   - This creates the Docker image with the `latest` tag, which we'll use as the base image in our next command
 1. `bin/run IMAGE_NAME`
 
-Well... **3 commands**.
+Well... **4 commands**.
 
 `bin/run` will spit out a command for you to execute in your own terminal. This command requires connection info for your Ecto database. Be sure to substitute default credentials with your own.
+
+If you don't want to start the container immediately after creation, remove the starting `docker start` and wrapping `$()` around the create command.
 
 ### Why does `bin/run` generate a command instead of executing the command?
 
