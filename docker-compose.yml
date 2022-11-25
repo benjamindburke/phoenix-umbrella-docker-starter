@@ -1,0 +1,34 @@
+version: "2"
+services:
+  postgres-db:
+    image: postgres:14.6
+    restart: unless-stopped
+    container_name: postgres
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hello_prod
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-U", "postgres"]
+      interval: 10s
+      timeout: 45s
+      retries: 10
+      start_period: 30s
+  phoenix:
+    container_name: phoenix
+    restart: unless-stopped
+    build: ./
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    ports:
+      - 4000:443
+    environment:
+      DATABASE_URL: "ecto://postgres:postgres@postgres-db/hello_prod"
+      SECRET_KEY_BASE: 0atCvQ1tJWfhlO/+IA+qFsY41Bmb56rcePMsHuQfYGQmz8TfqbEIxTUI5lIn3tsA
+      PHX_HOST: example.com
+volumes:
+  pg-data:
+    external: true
