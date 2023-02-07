@@ -23,5 +23,8 @@ config :hello_web, HelloWeb.Endpoint,
 # Print only warnings and errors during test
 config :logger, level: :warn
 
+# In test we don't send emails.
+config :hello, Hello.Mailer, adapter: Swoosh.Adapters.Test
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

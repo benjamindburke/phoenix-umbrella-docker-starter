@@ -7,7 +7,6 @@ import Config
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
 if config_env() == :prod do
-
   if System.get_env("PHX_SERVER") do
     config :hello_web, HelloWeb.Endpoint, server: true
   end
@@ -39,14 +38,56 @@ if config_env() == :prod do
       You can generate one by calling: mix phx.gen.secret
       """
 
+  phx_host =
+    System.get_env("PHX_HOST") ||
+      raise """
+      environment variable PHX_HOST is missing.
+      """
+
+  phx_port = String.to_integer(System.get_env("PORT") || "4000")
+
   config :hello_web, HelloWeb.Endpoint,
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
-      port: String.to_integer(System.get_env("PORT") || "4000")
+      port: phx_port
     ],
+    url: [host: phx_host, port: phx_port],
     secret_key_base: secret_key_base
+
+  fly_app_name = System.get_env("FLY_APP_NAME")
+
+  topologies =
+    if fly_app_name do
+      # Configures libcluster to use Fly.io DNS query names
+      [
+        fly6pn: [
+          strategy: Cluster.Strategy.DNSPoll,
+          config: [
+            polling_interval: 5_000,
+            query: "#{fly_app_name}.internal",
+            node_basename: fly_app_name
+          ]
+        ]
+      ]
+    else
+      # Configures libcluster to use EPMD in Docker swarm
+      [
+        docker_compose: [
+          strategy: Cluster.Strategy.DNSPoll,
+          config: [
+            node_basename: "hello_web",
+            query: "hello_web",
+            polling_interval: 5_000
+          ]
+        ]
+      ]
+    end
+
+  config :libcluster,
+    debug: true,
+    topologies: topologies
 
   # ## Using releases
   #

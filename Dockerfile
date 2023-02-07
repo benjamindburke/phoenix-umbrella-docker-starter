@@ -8,34 +8,39 @@
 # This file is based on these images:
 #
 #   - https://hub.docker.com/r/hexpm/elixir/tags - for the build image
-#   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20220801-slim - for the release image
+#   - https://hub.docker.com/_/debian?tab=tags&page=1&name=bullseye-20230109-slim - for the release image
 #   - https://pkgs.org/ - resource for finding needed packages
-#   - Ex: hexpm/elixir:1.14.1-erlang-25.1.1-debian-bullseye-20220801-slim
+#   - Ex: hexpm/elixir:1.14.3-erlang-25.2.1-debian-bullseye-20230109-slim
 #
-ARG ELIXIR_VERSION=1.14.1
-ARG OTP_VERSION=25.1.1
-ARG DEBIAN_VERSION=bullseye-20220801-slim
+ARG ELIXIR_VERSION=1.14.3
+ARG OTP_VERSION=25.2.1
+ARG DEBIAN_VERSION=bullseye-20230109-slim
 
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
 FROM ${BUILDER_IMAGE} as builder
 
+ARG DATABASE_URL
+
 # install build dependencies
 RUN apt-get update -y \
-    && apt-get install -y build-essential git \
+    && apt-get install -y \
+        build-essential git \
     && apt-get clean \
     && rm -f /var/lib/apt/lists/*_*
 
 # prepare build dir
-WORKDIR /app
+WORKDIR /opt/svc
 
 # install hex + rebar
 RUN mix local.hex --force \
     && mix local.rebar --force
 
 # make umbrella app directories
-RUN mkdir -p apps/hello apps/hello_web
+RUN mkdir -p \
+    apps/hello \
+    apps/hello_web
 
 # set build ENV
 ENV MIX_ENV=prod
@@ -54,27 +59,41 @@ COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
 # Copy all umbrella apps/ elixir code
-COPY apps/hello apps/hello/
-COPY apps/hello_web apps/hello_web/
+COPY apps/ apps/
 
 # compile assets
-WORKDIR /app/apps/hello_web
-RUN mix assets.deploy \
-    && mix phx.gen.release
+WORKDIR /opt/svc/apps/hello_web
+RUN mix assets.deploy
 
 # Compile the release
-WORKDIR /app
+WORKDIR /opt/svc
 RUN mix compile
 
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
+COPY rel/ rel/
 
-RUN cp -R apps/hello_web/rel ./ \
-    && mix release
+RUN mix release
+
+FROM builder as test
+
+ARG DATABASE_URL
+
+# set build env for testing
+ENV MIX_ENV=test \
+    DATABASE_URL=$DATABASE_URL
+
+# install mix dependencies for testing
+COPY config/test.exs config/
+
+# run tests
+RUN mix test
 
 # start a new build stage so that the final image will only contain
 # the compiled release and other runtime necessities
 FROM ${RUNNER_IMAGE}
+
+ARG DATABASE_URL
 
 RUN apt-get update -y \
     && apt-get install -y libstdc++6 openssl libncurses5 locales \
@@ -84,24 +103,22 @@ RUN apt-get update -y \
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-
-WORKDIR "/app"
-RUN chown nobody /app
-
 # set runner ENV
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
     LC_ALL=en_US.UTF-8 \
     MIX_ENV=prod \
     PHX_SERVER=true \
-    PORT=443
+    DATABASE_URL=$DATABASE_URL
 
-# Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/hello_web ./
+WORKDIR /opt/svc
+RUN chown nobody /opt/svc
 
 USER nobody
 
-CMD ["/app/bin/server"]
+EXPOSE 4000
+
+# Only copy the final release from the build stage
+COPY --from=builder --chown=nobody:root /opt/svc/_build/${MIX_ENV}/rel/hello_web ./
+
+CMD /opt/svc/bin/server

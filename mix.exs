@@ -47,11 +47,8 @@ defmodule Hello.Umbrella.MixProject do
   defp releases do
     [
       hello_web: [
-        applications: [
-          hello: :permanent,
-          hello_web: :permanent
-        ]
-      ],
+        applications: [hello_web: :permanent]
+      ]
     ]
   end
 end

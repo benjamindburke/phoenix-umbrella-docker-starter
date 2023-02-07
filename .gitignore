@@ -1,6 +1,9 @@
 # The directory Mix will write compiled artifacts to.
 /_build/
 
+# The ElixirLS dializer directory
+.elixir_ls/
+
 # If you run "mix test --cover", coverage assets end up here.
 /cover/
 
@@ -25,5 +28,8 @@ erl_crash.dump
 # Ignore all package tarballs
 *.tar
 
-# Ignore the release folder because we'll prefer to deploy on Docker
-/rel/
+# Ignore all vpn connection configuration files
+*.vpn.conf
+
+# Docker-compose
+docker-local/data/

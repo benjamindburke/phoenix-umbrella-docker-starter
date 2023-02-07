@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-VOLUME_EXISTS=$( docker volume list | grep pg-data )
-[[ -z "$VOLUME_EXISTS" ]] && docker volume create --name=pg-data
-
-docker compose build
