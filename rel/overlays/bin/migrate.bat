@@ -1,1 +1,1 @@
-call "%~dp0\hello_web" eval HelloWeb.Release.migrate
+call "%~dp0\hello" eval Hello.Release.migrate

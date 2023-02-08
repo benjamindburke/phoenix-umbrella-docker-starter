@@ -15,7 +15,7 @@ config :hello, Hello.Repo,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :hello_web, HelloWeb.Endpoint,
+config :hello, HelloWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "nqa5mOCQ/tTS1AUj//lD6qvCmaDCOB/+0F8suEiIGwdrtUPuuVyMHYbTFCFEBaI1",
   server: false

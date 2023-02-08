@@ -37,18 +37,11 @@ WORKDIR /opt/svc
 RUN mix local.hex --force \
     && mix local.rebar --force
 
-# make umbrella app directories
-RUN mkdir -p \
-    apps/hello \
-    apps/hello_web
-
 # set build ENV
 ENV MIX_ENV=prod
 
 # install mix dependencies
-COPY mix.exs mix.lock       ./
-COPY apps/hello/mix.exs     apps/hello/
-COPY apps/hello_web/mix.exs apps/hello_web/
+COPY mix.exs mix.lock ./
 RUN mix deps.get --only $MIX_ENV
 
 # copy compile-time config files before we compile dependencies
@@ -58,21 +51,20 @@ RUN mkdir config
 COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
-# Copy all umbrella apps/ elixir code
-COPY apps/ apps/
+COPY priv priv
+COPY lib lib
+COPY assets assets
 
 # compile assets
-WORKDIR /opt/svc/apps/hello_web
 RUN mix assets.deploy
 
 # Compile the release
-WORKDIR /opt/svc
 RUN mix compile
 
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
-COPY rel/ rel/
 
+COPY rel rel
 RUN mix release
 
 FROM builder as test
@@ -103,6 +95,9 @@ RUN apt-get update -y \
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
+WORKDIR /opt/svc
+RUN chown nobody /opt/svc
+
 # set runner ENV
 ENV LANG=en_US.UTF-8 \
     LANGUAGE=en_US:en \
@@ -116,9 +111,7 @@ RUN chown nobody /opt/svc
 
 USER nobody
 
-EXPOSE 4000
-
 # Only copy the final release from the build stage
-COPY --from=builder --chown=nobody:root /opt/svc/_build/${MIX_ENV}/rel/hello_web ./
+COPY --from=builder --chown=nobody:root /opt/svc/_build/${MIX_ENV}/rel/hello ./
 
 CMD /opt/svc/bin/server

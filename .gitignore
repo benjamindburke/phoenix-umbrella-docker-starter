@@ -28,6 +28,17 @@ erl_crash.dump
 # Ignore all package tarballs
 *.tar
 
+# Ignore assets that are produced by build tools.
+**/priv/static/assets/
+
+# Ignore digested assets cache.
+**/priv/static/cache_manifest.json
+
+# In case you use Node.js/npm, you want to ignore these.
+**/npm-debug.log
+**/assets/**/node_modules/
+
+
 # Ignore all vpn connection configuration files
 *.vpn.conf
 

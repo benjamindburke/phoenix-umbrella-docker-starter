@@ -1,4 +1,4 @@
-defmodule HelloWeb.Application do
+defmodule Hello.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -10,18 +10,22 @@ defmodule HelloWeb.Application do
     topologies = Application.get_env(:libcluster, :topologies) || []
 
     children = [
+      # Start the Ecto repository
+      Hello.Repo,
       # Start the Telemetry supervisor
       HelloWeb.Telemetry,
+      # Start the PubSub system
+      {Phoenix.PubSub, name: Hello.PubSub},
       # Start the Endpoint (http/https)
       HelloWeb.Endpoint,
       {Cluster.Supervisor, [topologies, [name: HelloWeb.ClusterSupervisor]]}
-      # Start a worker by calling: HelloWeb.Worker.start_link(arg)
-      # {HelloWeb.Worker, arg}
+      # Start a worker by calling: Hello.Worker.start_link(arg)
+      # {Hello.Worker, arg}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: HelloWeb.Supervisor]
+    opts = [strategy: :one_for_one, name: Hello.Supervisor]
     Supervisor.start_link(children, opts)
   end
 

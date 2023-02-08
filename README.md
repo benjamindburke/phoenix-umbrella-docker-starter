@@ -1,22 +1,22 @@
-# Hello.Umbrella
+# Hello
 
-### Have you ever struggled to containerize a Phoenix umbrella application?
+### Have you ever struggled to containerize a Phoenix application?
 
 Me too!
 
 That's why I created this Phoenix Docker Starter application. Please feel free to fork the code or copy the configuration you need to configure your own Phoenix Docker swarm.
 
-### Are you looking for a regular Phoenix app instead?
+### Are you looking for an umbrella Phoenix app instead?
 
-That's okay, not everyone uses or likes umbrella applications. I've got you covered! Check out my non-umbrella branch of the project here!
+That's okay, some people enjoy using umbrella applicatons (like myself)! I've got you covered! Check out my umbrella branch of the project here!
 
-https://github.com/benjamindburke/phoenix-umbrella-docker-starter/tree/non-umbrella
+https://github.com/benjamindburke/phoenix-umbrella-docker-starter/tree/umbrella
 
-## How to use HelloWeb
+## How to use Hello
 
 First, add your own application secrets to the files in [docker-local/db.env](./docker-local/db.env) and [docker-local/dev.env](./docker-local/dev.env).
 
-Use these three commands to build the `hello_web` Docker service locally:
+Use these three commands to build the `hello` Docker service locally:
 
 1. `mix deps.get`
    - We need the deps locally so Phoenix can generate a secure secret: `mix phx.gen.secret`

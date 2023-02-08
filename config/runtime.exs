@@ -6,11 +6,21 @@ import Config
 # and secrets from environment variables or elsewhere. Do not define
 # any compile-time configuration in here, as it won't be applied.
 # The block below contains prod specific runtime configuration.
-if config_env() == :prod do
-  if System.get_env("PHX_SERVER") do
-    config :hello_web, HelloWeb.Endpoint, server: true
-  end
 
+# ## Using releases
+#
+# If you use `mix release`, you need to explicitly enable the server
+# by passing the PHX_SERVER=true when you start it:
+#
+#     PHX_SERVER=true bin/hello start
+#
+# Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
+# script that automatically sets the env var above.
+if System.get_env("PHX_SERVER") do
+  config :hello, HelloWeb.Endpoint, server: true
+end
+
+if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
       raise """
@@ -46,7 +56,7 @@ if config_env() == :prod do
 
   phx_port = String.to_integer(System.get_env("PORT") || "4000")
 
-  config :hello_web, HelloWeb.Endpoint,
+  config :hello, HelloWeb.Endpoint,
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
@@ -88,14 +98,4 @@ if config_env() == :prod do
   config :libcluster,
     debug: true,
     topologies: topologies
-
-  # ## Using releases
-  #
-  # If you are doing OTP releases, you need to instruct Phoenix
-  # to start each relevant endpoint:
-  #
-  #     config :hello_web, HelloWeb.Endpoint, server: true
-  #
-  # Then you can assemble a release by calling `mix release`.
-  # See `mix help release` for more information.
 end

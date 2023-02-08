@@ -1,9 +1,9 @@
-defmodule HelloWeb.Release do
+defmodule Hello.Release do
   @moduledoc """
   Used for executing DB release tasks when run in production without Mix
   installed.
   """
-  @app :hello_web
+  @app :hello
 
   def migrate do
     load_app()
