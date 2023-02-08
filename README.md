@@ -6,6 +6,12 @@ Me too!
 
 That's why I created this Phoenix Docker Starter application. Please feel free to fork the code or copy the configuration you need to configure your own Phoenix Docker swarm.
 
+### Are you looking for a regular Phoenix app instead?
+
+That's okay, not everyone uses or likes umbrella applications. I've got you covered! Check out my non-umbrella branch of the project here!
+
+https://github.com/benjamindburke/phoenix-umbrella-docker-starter/tree/non-umbrella
+
 ## How to use HelloWeb
 
 First, add your own application secrets to the files in [docker-local/db.env](./docker-local/db.env) and [docker-local/dev.env](./docker-local/dev.env).

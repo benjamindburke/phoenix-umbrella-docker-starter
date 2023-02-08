@@ -77,8 +77,8 @@ if config_env() == :prod do
         docker_compose: [
           strategy: Cluster.Strategy.DNSPoll,
           config: [
-            node_basename: "hello_web",
-            query: "hello_web",
+            node_basename: "phoenix_node",
+            query: "phoenix_container",
             polling_interval: 5_000
           ]
         ]
